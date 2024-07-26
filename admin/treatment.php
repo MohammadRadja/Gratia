@@ -7,6 +7,8 @@ include('../admin/controller/treatment_controller.php');
 
 // Memuat header admin setelah mendapatkan data siswa
 include('../template/admin/header.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Begin Page Content -->
@@ -25,7 +27,7 @@ include('../template/admin/header.php');
         if (isset($_SESSION['crud_error'])) { ?>
         <div class="container">
             <div class="alert alert-danger">
-                <h1 class="display-8"><?= $_SESSION['crud_error'] ?></h1>
+                <h1 class="display-8 text-center"><?= $_SESSION['crud_error'] ?></h1>
                 <p class="lead"></p>
             </div>
         </div>
@@ -34,7 +36,7 @@ include('../template/admin/header.php');
         if (isset($_SESSION['crud_success'])) { ?>
             <div class="container">
                 <div class="alert alert-success">
-                    <h1 class="display-8"><?= $_SESSION['crud_success'] ?></h1>
+                    <h1 class="display-8 text-center"><?= $_SESSION['crud_success'] ?></h1>
                 </div>
             </div>
             <?php unset($_SESSION['crud_success']); // Hapus session setelah digunakan ?>
@@ -52,12 +54,12 @@ include('../template/admin/header.php');
             <?php foreach ($data_treatment as $treatment) { ?>
                     <tr>
                         <td><?= htmlspecialchars($treatment['nama_treatment']); ?></td>
-                        <td><?= htmlspecialchars($treatment['biaya']); ?></td>
+                        <td>Rp<?= number_format(htmlspecialchars($treatment['biaya']), 0, ',', '.'); ?></td>
                         <td>
                             <form method="POST" action="treatment.php" style="display:inline;">
                                 <input type="hidden" name="id_treatment" value="<?= $treatment['id_treatment']; ?>">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus treatment ini?');">Delete</button>
+                                <button type="button" class="btn btn-danger" onclick="showDeleteModal('<?= $treatment['id_treatment']; ?>', '<?= htmlspecialchars($treatment['nama_treatment']); ?>')">Delete</button>
                             </form>
                             <button class="btn btn-warning" onclick="edittreatment('<?= $treatment['id_treatment']; ?>', '<?= htmlspecialchars($treatment['nama_treatment']); ?>', '<?= htmlspecialchars($treatment['biaya']); ?>')">Edit</button>
                         </td>
@@ -86,7 +88,10 @@ include('../template/admin/header.php');
                     </div>
                     <div class="form-group">
                         <label for="biaya">biaya</label>
+                        <div class="input-group">
+                        <span class="input-group-text">Rp</span>
                         <input type="text" class="form-control" id="biaya" name="biaya" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -97,8 +102,31 @@ include('../template/admin/header.php');
         </div>
     </div>
 </div>
-<!-- End of Page Content -->
 
+<!-- Modal untuk Konfirmasi Hapus -->
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus treatment <strong id="nama_treatment"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <form id="deleteForm" method="POST" action="treatment.php">
+                    <input type="hidden" name="id_treatment" id="deleteTreatmentId">
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 function showAddModal() {
@@ -115,6 +143,12 @@ function edittreatment(id, nama, biaya) {
     document.getElementById('biaya').value = biaya;
     document.getElementById('action').value = 'update';
     $('#treatmentModal').modal('show');
+}
+
+function showDeleteModal(id, nama) {
+    document.getElementById('deleteTreatmentId').value = id;
+    document.getElementById('nama_treatment').innerText = nama;
+    $('#deleteModal').modal('show');
 }
 
 function validateForm() {
@@ -135,9 +169,24 @@ function validateForm() {
         alert("biaya harus lebih dari 2 karakter!");
         return false;
     }
-
     return true; // Jika semua validasi lulus
 }
+
+function formatRupiah(input) {
+    let value = input.value.replace(/[^,\d]/g, '');
+    let split = value.split(',');
+    let sisa = split[0].length % 3;
+    let rupiah = split[0].substr(0, sisa);
+    let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+    if (ribuan) {
+        let separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+
+    input.value = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+}
+
 </script>
 
 <?php include('../template/admin/footer.php'); ?>

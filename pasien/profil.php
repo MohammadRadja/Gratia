@@ -77,6 +77,5 @@ include('../pasien/controller/pasien_dashboard_control.php');
         </div>
     </div>
 </div>
-<!-- End of Main Content -->
 
 <?php include('../template/pasien/dashboard_footer.php'); ?>

@@ -7,6 +7,8 @@ include('../admin/controller/dokter_controller.php');
 
 // Memuat header admin setelah mendapatkan data siswa
 include('../template/admin/header.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Begin Page Content -->
@@ -57,8 +59,8 @@ include('../template/admin/header.php');
                             <form method="POST" action="dokter.php" style="display:inline;">
                                 <input type="hidden" name="id_dokter" value="<?= $dokter['id_dokter']; ?>">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">Delete</button>
-                            </form>
+                                <button type="button" class="btn btn-danger" onclick="showDeleteModal('<?= $dokter['id_dokter']; ?>', '<?= htmlspecialchars($dokter['nama_dokter']); ?>')">Delete</button>
+                                </form>
                             <button class="btn btn-warning" onclick="editDokter('<?= $dokter['id_dokter']; ?>', '<?= htmlspecialchars($dokter['nama_dokter']); ?>', '<?= htmlspecialchars($dokter['spesialisasi']); ?>')">Edit</button>
                         </td>
                     </tr>
@@ -99,6 +101,32 @@ include('../template/admin/header.php');
     </div>
 </div>
 
+<!-- Modal untuk Konfirmasi Hapus -->
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus dokter <strong id="dokterNama"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <form id="deleteForm" method="POST" action="dokter.php">
+                    <input type="hidden" name="id_dokter" id="deleteDokterId">
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
 function showAddModal() {
     document.getElementById('id_dokter').value = '';
@@ -114,6 +142,12 @@ function editDokter(id, nama, spesialisasi) {
     document.getElementById('spesialisasi').value = spesialisasi;
     document.getElementById('action').value = 'update';
     $('#dokterModal').modal('show');
+}
+
+function showDeleteModal(id, nama) {
+    document.getElementById('deleteDokterId').value = id;
+    document.getElementById('dokterNama').innerText = nama;
+    $('#deleteModal').modal('show');
 }
 
 function validateForm() {

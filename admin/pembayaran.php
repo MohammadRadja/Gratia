@@ -7,6 +7,8 @@ include('../admin/controller/admin_dashboard_control.php');
 
 // Memuat header admin setelah mendapatkan data pembayaran
 include('../template/admin/header.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Begin Page Content -->

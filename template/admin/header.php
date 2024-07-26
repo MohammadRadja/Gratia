@@ -41,40 +41,52 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Pasien -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'pasien.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="pasien.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Pasien</span>
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Data Pasien</span>
                 </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Dokter -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'dokter.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="dokter.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Dokter</span>
+                    <i class="fas fa-fw fa-user-md"></i>
+                    <span>Data Dokter</span>
                 </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Treatment -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'treatment.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="treatment.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Treatment</span>
+                    <i class="fas fa-fw fa-stethoscope"></i>
+                    <span>Data Treatment</span>
                 </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Appointment -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'appointment.php' ? 'active' : ''; ?>">
+                <a class="nav-link" href="appointment.php">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Data Appointment</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Data Pembayaran -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'pembayaran.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="pembayaran.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Pembayaran</span>
+                    <i class="fas fa-fw fa-credit-card"></i>
+                    <span>Data Pembayaran</span>
                 </a>
             </li>
-
             
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -83,17 +95,14 @@
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-
             <!-- Sidebar Message -->
         </ul>
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
-
             <!-- Main Content -->
             <div id="content">
-
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -119,7 +128,5 @@
                                 </a>
                             </div>
                         </li>
-
                     </ul>
-
                 </nav>

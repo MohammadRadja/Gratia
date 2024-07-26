@@ -7,6 +7,8 @@ include('../admin/controller/admin_dashboard_control.php');
 
 // Memuat header admin setelah mendapatkan data pasien
 include('../template/admin/header.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Begin Page Content -->
@@ -57,11 +59,7 @@ include('../template/admin/header.php');
                     <td><?= htmlspecialchars($pasien['no_telp']); ?></td>
                     <td><?= htmlspecialchars($pasien['status_pembayaran']); ?></td>
                     <td>
-                        <form method="POST" action="pasien.php" style="display:inline;">
-                            <input type="hidden" name="id_pasien" value="<?= $pasien['id_pasien']; ?>">
-                            <input type="hidden" name="action" value="delete">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus pasien ini?');">Delete</button>
-                        </form>
+                        <button class="btn btn-danger" onclick="showDeleteModal('<?= $pasien['id_pasien']; ?>', '<?= htmlspecialchars($pasien['nama']); ?>')">Delete</button>
                         <button class="btn btn-warning" onclick="editPasien('<?= $pasien['id_pasien']; ?>', '<?= htmlspecialchars($pasien['nama']); ?>', '<?= htmlspecialchars($pasien['alamat']); ?>', '<?= htmlspecialchars($pasien['jenis_kelamin']); ?>', '<?= htmlspecialchars($pasien['no_telp']); ?>')">Edit</button>
                     </td>
                 </tr>
@@ -85,8 +83,8 @@ include('../template/admin/header.php');
                         <input type="hidden" name="action" id="action" value="create">
                         <input type="hidden" name="id_pasien" id="id_pasien">
                         <div class="form-group">
-                            <label for="nama_pasien">Nama Pasien</label>
-                            <input type="text" class="form-control" id="nama_pasien" name="nama_pasien" required>
+                            <label for="nama">Nama Pasien</label>
+                            <input type="text" class="form-control" id="nama" name="nama" required>
                         </div>
                         <div class="form-group">
                             <label for="alamat">Alamat</label>
@@ -95,12 +93,16 @@ include('../template/admin/header.php');
                         <div class="form-group">
                             <label for="gender" class="form-check-label">Jenis Kelamin</label>
                             <br>
-                            <input type="radio" name="jenis_kelamin" class="form-check-input" id="gender_laki" value="Laki-laki" required> Laki-laki
-                            <input type="radio" name="jenis_kelamin" class="form-check-input" id="gender_perempuan" value="Perempuan" required> Perempuan
+                            <input type="radio" name="jenis_kelamin" id="gender_laki" value="Laki-laki" required> Laki-laki
+                            <input type="radio" name="jenis_kelamin" id="gender_perempuan" value="Perempuan" required> Perempuan
                         </div>
                         <div class="form-group">
-                            <label for="no_telp">No Telepon</label>
-                            <input type="tel" class="form-control" id="no_telp" name="no_telp" required>
+                            <label for="no_telp" class="form-label">No Telepon</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+62</span>
+                                <input type="tel" name="no_telp" class="form-control" id="no_telp" placeholder="Nomor telepon tanpa 0 di depan" required>
+                            </div>
+                            <small class="form-text text-muted">Masukkan nomor telepon tanpa 0 di depan (misal: 81234567890).</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -112,20 +114,51 @@ include('../template/admin/header.php');
         </div>
     </div>
 
+    <!-- Modal untuk Konfirmasi Hapus -->
+    <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menghapus data pasien <strong id="pasienNama"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <form id="deleteForm" method="POST" action="pasien.php">
+                        <input type="hidden" name="id_pasien" id="deletePasienId">
+                        <input type="hidden" name="action" value="delete">
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     function showAddModal() {
         document.getElementById('id_pasien').value = '';
-        document.getElementById('nama_pasien').value = '';
+        document.getElementById('nama').value = '';
         document.getElementById('alamat').value = '';
-        document.querySelector('input[name="jenis_kelamin"]:checked').checked = false;
+        
+        // Cek apakah ada radio button yang terpilih sebelum mengubah status checked
+        const genderRadio = document.querySelectorAll('input[name="jenis_kelamin"]');
+        genderRadio.forEach((radio) => {
+            radio.checked = false; // Set semua radio button tidak terpilih
+        });
+        
         document.getElementById('no_telp').value = '';
         document.getElementById('action').value = 'create';
-        $('#pasienModal').modal('show');
+        $('#pasienModal').modal('show'); // Tampilkan modal
     }
 
     function editPasien(id, nama, alamat, jenis_kelamin, no_telp) {
         document.getElementById('id_pasien').value = id;
-        document.getElementById('nama_pasien').value = nama;
+        document.getElementById('nama').value = nama;
         document.getElementById('alamat').value = alamat;
         document.getElementById('no_telp').value = no_telp;
         document.querySelector(`input[name="jenis_kelamin"][value="${jenis_kelamin}"]`).checked = true; // Set radio button
@@ -133,8 +166,14 @@ include('../template/admin/header.php');
         $('#pasienModal').modal('show'); // Tampilkan modal
     }
 
+    function showDeleteModal(id, nama) {
+        document.getElementById('deletePasienId').value = id;
+        document.getElementById('pasienNama').innerText = nama; // Tampilkan nama pasien di modal
+        $('#deleteModal').modal('show'); // Tampilkan modal konfirmasi
+    }
+
     function validateForm() {
-        const namaPasien = document.getElementById('nama_pasien').value;
+        const namaPasien = document.getElementById('nama').value;
         const noTelp = document.getElementById('no_telp').value;
 
         if (!namaPasien || !noTelp) {

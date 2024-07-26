@@ -35,17 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     switch ($action) {
         case 'create':
             $nama_treatment = mysqli_real_escape_string($conn, $_POST['nama_treatment']);
-            $biaya = mysqli_real_escape_string($conn, $_POST['biaya']);
+            $biaya = str_replace(['.', 'Rp', ' '], '', $_POST['biaya']);
+            $biaya = mysqli_real_escape_string($conn, $biaya);
 
             $id_treatment = uniqid();
 
-            $sql_create = "INSERT INTO treatment (id_treatment, nama_treatment, spesialis, email, no_telp) VALUES (?, ?, ?)";
+            $sql_create = "INSERT INTO treatment (id_treatment, nama_treatment, biaya) VALUES (?, ?, ?)";
             $stmt = mysqli_prepare($conn, $sql_create);
-            mysqli_stmt_bind_param($stmt, 'sss', $id_treatment ,$nama_treatment, $biaya);
-            if (!mysqli_stmt_execute($stmt)) {
-                handleError("Tambah treatment");
+            if (!$stmt) {
+                handleError("Prepare statement gagal: " . mysqli_error($conn));
             }
-            $_SESSION['crud_success'] = "treatment berhasil ditambahkan.";
+            mysqli_stmt_bind_param($stmt, 'ssd', $id_treatment, $nama_treatment, $biaya);
+            if (!mysqli_stmt_execute($stmt)) {
+                handleError("Tambah Data treatment");
+            }
+            $_SESSION['crud_success'] = "Data treatment berhasil ditambahkan.";
             break;
 
         case 'update':
@@ -55,11 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $sql_update = "UPDATE treatment SET nama_treatment = ?, biaya = ? WHERE id_treatment = ?";
             $stmt = mysqli_prepare($conn, $sql_update);
-            mysqli_stmt_bind_param($stmt, 'sss', $nama_treatment, $biaya, $id_treatment);
+            mysqli_stmt_bind_param($stmt, 'sds', $nama_treatment, $biaya, $id_treatment);
             if (!mysqli_stmt_execute($stmt)) {
-                handleError("update treatment");
+                handleError("update Data treatment");
             }
-            $_SESSION['crud_success'] = "treatment berhasil diupdate.";
+            $_SESSION['crud_success'] = "Data treatment berhasil diupdate.";
             break;
 
         case 'delete':
@@ -67,11 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $sql_delete = "DELETE FROM treatment WHERE id_treatment = ?";
             $stmt = mysqli_prepare($conn, $sql_delete);
-            mysqli_stmt_bind_param($stmt, 'i', $id_treatment);
+            mysqli_stmt_bind_param($stmt, 's', $id_treatment);
             if (!mysqli_stmt_execute($stmt)) {
-                handleError("delete treatment");
+                handleError("delete data treatment gagal");
             }
-            $_SESSION['crud_success'] = "treatment berhasil dihapus.";
+            $_SESSION['crud_success'] = "Data treatment berhasil dihapus.";
             break;
 
         default:
