@@ -12,8 +12,8 @@
     <div class="container">
         <div class="jumbotron p-1 mb-4 bg-light rounded-3">
             <div class="container py-5">
-                <h1 class="display-4">Selamat Datang di Sekolah TK</h1>
-                <p class="lead">Kami senang Anda bergabung dengan kami. Mari bersama-sama menciptakan pengalaman belajar yang menyenangkan untuk anak-anak.</p>
+                <h1 class="display-4">Selamat Datang di Gratia Jaya Mulya</h1>
+                <p class="lead">Kami senang Anda bergabung dengan kami.</p>
             </div>
         </div>
     </div>

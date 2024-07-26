@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="icon" type="image/png" href="../assets/img/logo.jpeg">
 
-    <title>Dashboard Admin TK Cahaya Nusantara</title>
+    <title>Dashboard Admin Gratia Jaya Mulya</title>
 
     <!-- Custom fonts for this template-->
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -32,9 +32,9 @@
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
-                    <img src="../assets/img/logo.png" style="width: 50px;" alt="TK Cahaya Nusantara">
+                    <img src="../assets/img/logo.jpeg" style="width: 50px;" alt="Gratia Jaya Mulya">
                 </div>
-                <div class="sidebar-brand-text mx-3">Admin </br> TK CAHAYA NUSANTARA</div>
+                <div class="sidebar-brand-text mx-3">Admin </br> Gratia Jaya Mulya</div>
             </a>
 
             <!-- Divider -->
@@ -48,9 +48,23 @@
             </li>
 
             <li class="nav-item active">
-                <a class="nav-link" href="pendaftar.php">
+                <a class="nav-link" href="pasien.php">
                     <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Pendaftar</span>
+                    <span>Pasien</span>
+                </a>
+            </li>
+
+            <li class="nav-item active">
+                <a class="nav-link" href="dokter.php">
+                    <i class="fas fa-fw fa-user-alt"></i>
+                    <span>Dokter</span>
+                </a>
+            </li>
+
+            <li class="nav-item active">
+                <a class="nav-link" href="treatment.php">
+                    <i class="fas fa-fw fa-user-alt"></i>
+                    <span>Treatment</span>
                 </a>
             </li>
 
@@ -94,8 +108,8 @@
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $_SESSION['nama']; ?></span>
-                                <img class="img-profile rounded-circle" src="../assets/img/logo.png">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $_SESSION['username']; ?></span>
+                                <img class="img-profile rounded-circle" src="../assets/img/logo.jpeg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

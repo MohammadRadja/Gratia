@@ -33,7 +33,7 @@ ob_start(); // Mulai output buffering
         <ul class="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
                 <div class="sidebar-brand-icon">
                     <img src="../assets/img/logo.jpeg" style="width: 50px;" alt="Gratia Jaya Mulya">
                 </div>
@@ -56,6 +56,12 @@ ob_start(); // Mulai output buffering
                     <span>Profile</span></a>
             </li>
             
+            <li class="nav-item active">
+                <a class="nav-link" href="appointment.php">
+                    <i class="fas fa-fw fa-user-alt"></i>
+                    <span>Appointment</span></a>
+            </li>
+
             <li class="nav-item active">
                 <a class="nav-link" href="pembayaran.php">
                     <i class="fas fa-fw fa-file-invoice"></i>

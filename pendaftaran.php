@@ -1,44 +1,5 @@
 <?php
 include('./db/koneksi.php');
-
-// Ambil data treatment dari database
-$query = "SELECT * FROM Treatment";
-$result = $conn->query($query);
-$treatments = []; // Inisialisasi variabel treatments
-
-if ($result) {
-    if ($result->num_rows > 0) {
-        // Ambil semua data treatment
-        while ($row = $result->fetch_assoc()) {
-            $treatments[] = $row;
-        }
-    } else {
-        // Jika tidak ada treatment
-        echo "Tidak ada data treatment ditemukan.";
-    }
-} else {
-    echo "Error dalam query: " . $koneksi->error; // Tampilkan pesan kesalahan
-}
-
-// Ambil data dokter dari database
-$query = "SELECT * FROM dokter";
-$result = $conn->query($query);
-$dokter = []; // Inisialisasi variabel treatments
-
-if ($result) {
-    if ($result->num_rows > 0) {
-        // Ambil semua data treatment
-        while ($row = $result->fetch_assoc()) {
-            $dokters[] = $row;
-        }
-    } else {
-        // Jika tidak ada treatment
-        echo "Tidak ada data treatment ditemukan.";
-    }
-} else {
-    echo "Error dalam query: " . $koneksi->error; // Tampilkan pesan kesalahan
-}
-
 include('template/pasien/header.php');
 ?>
 <div class="jumbotron">
@@ -76,8 +37,12 @@ include('template/pasien/header.php');
                 <input type="radio" name="gender" class="form-check-input" id="gender_perempuan" value="Perempuan" required> Perempuan
             </div>
             <div class="mb-3">
-                <label for="noTlp" class="form-label">No Telepon</label>
-                <input type="tel" name="noTlp" class="form-control" id="noTlp" required>
+                <label for="no_telp" class="form-label">No Telepon</label>
+                    <div class="input-group">
+                        <span class="input-group-text">+62</span>
+                        <input type="tel" name="no_telp" value="<?= htmlspecialchars(substr($data_pasien['no_telp'] ?? '', 3)) ?>" class="form-control" id="no_telp" placeholder="Nomor telepon tanpa 0 di depan">
+                    </div>
+                <small class="form-text text-muted">Masukkan nomor telepon tanpa 0 di depan (misal: 81234567890).</small>
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -86,27 +51,6 @@ include('template/pasien/header.php');
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" class="form-control" id="password" required>
-            </div>
-            <h1>Data Appointment</h1>
-            <div class="mb-3">
-                <label for="treatment" class="form-label">Treatment</label>
-                <select name="treatment" class="form-control" id="treatment" required>
-                    <?php foreach ($treatments as $treatment) { ?>
-                        <option value="<?= $treatment['id_treatment'] ?>"><?= $treatment['nama_treatment'] ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="dokter" class="form-label">Dokter</label>
-                <select name="dokter" class="form-control" id="dokter" required>
-                    <?php foreach ($dokters as $dokter) { ?>
-                        <option value="<?= $dokter['id_dokter'] ?>"><?= $dokter['nama_dokter'] ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="catatan" class="form-label">Catatan</label>
-                <input type="text" name="catatan" class="form-control" id="catatan" required>
             </div>
             <button name="btn_registrasi" value="simpan" class="btn btn-primary">Submit</button>
             <a class="btn btn-danger" href="index.php">Kembali</a>

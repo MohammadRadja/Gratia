@@ -14,9 +14,6 @@
 
     <div class="container">
         <div class="jumbotron p-1 mb-4 bg-light rounded-3">
-            <div class="container py-5">
-                <img src="../assets/img/Slide.png" class="w-5 img-fluid" alt="TestingBrosur">
-            </div>
         </div>
     </div>
 
@@ -45,23 +42,23 @@
                                 <div class="col-md-8">
                                     <div class="mb-3">
                                         <label for="nama" class="form-label">Nama Pasien</label>
-                                        <input type="text" name="nama" value="<?= htmlspecialchars($data_bayar['nama_pasien']); ?>" class="form-control" id="nama" disabled>
-                                    </div>
+                                        <input type="text" name="nama" value="<?= htmlspecialchars($nama_pasien); ?>" class="form-control" id="nama" disabled>
+                                        </div>
                                     <div class="mb-3">
                                         <label for="dokter" class="form-label">Nama Dokter</label>
-                                        <input type="text" name="dokter" value="<?= htmlspecialchars($data_bayar['nama_dokter']); ?>" class="form-control" id="dokter" disabled>
+                                        <input type="text" name="dokter" value="<?= htmlspecialchars($nama_dokter); ?>" class="form-control" id="dokter" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="treatment" class="form-label">Nama Treatment</label>
-                                        <input type="text" name="treatment" value="<?= htmlspecialchars($data_bayar['nama_treatment']); ?>" class="form-control" id="treatment" disabled>
+                                        <input type="text" name="treatment" value="<?= htmlspecialchars($nama_treatment); ?>" class="form-control" id="treatment" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="treatment" class="form-label">Biaya Treatment</label>
-                                        <input type="text" name="treatment" value="<?= htmlspecialchars($data_bayar['biaya']); ?>" class="form-control" id="treatment" disabled>
+                                        <input type="text" name="treatment" value="<?= htmlspecialchars($biaya); ?>" class="form-control" id="treatment" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="status_pembayaran" class="form-label">Status Pembayaran</label>
-                                        <input type="text" name="status_pembayaran" value="<?= htmlspecialchars($data_bayar['status_pembayaran']); ?>" class="form-control" id="status_pembayaran" disabled>
+                                        <input type="text" name="status_pembayaran" value="<?= htmlspecialchars($status_pembayaran); ?>" class="form-control" id="status_pembayaran" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="tanggal_bayar" class="form-label">Tanggal Pembayaran</label>

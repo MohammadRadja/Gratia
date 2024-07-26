@@ -8,28 +8,7 @@ include('../pasien/controller/pasien_dashboard_control.php');
 
 <!-- Begin Page Content -->
 <div class="container-fluid">
-<?php
-if (isset($_SESSION['update_profile_error'])) { ?>
-    <div class="container">
-        <div class="alert alert-danger">
-            <h1 class="display-4"><?= $_SESSION['update_profile_error'] ?></h1>
-            <p class="lead"></p>
-        </div>
-    </div>
-    <?php unset($_SESSION['update_profile_error']); // Hapus session setelah digunakan ?>
-<?php } ?>
-
-<?php
-if (isset($_SESSION['update_profile_success'])) { ?>
-    <div class="container">
-        <div class="alert alert-success">
-            <h1 class="display-4"><?= $_SESSION['update_profile_success'] ?></h1>
-            <p class="lead"></p>
-        </div>
-    </div>
-    <?php unset($_SESSION['update_profile_success']); // Hapus session setelah digunakan ?>
-<?php } ?>
-    <h1 class="h3 mb-4 text-gray-800">Formulir Pasien</h1>
+    <h1 class="h3 mb-4 text-gray-800">Profile Pasien</h1>
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow mb-4">
@@ -38,6 +17,25 @@ if (isset($_SESSION['update_profile_success'])) { ?>
                 </div>
                 <div class="card-body">
                 <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
+                    <?php
+                    if (isset($_SESSION['update_profile_error'])) { ?>
+                        <div class="container">
+                            <div class="alert alert-danger">
+                                <h1 class="display-8 text-center"><?= $_SESSION['update_profile_error'] ?></h1>
+                            </div>
+                        </div>
+                        <?php unset($_SESSION['update_profile_error']); // Hapus session setelah digunakan ?>
+                    <?php } ?>
+
+                    <?php
+                    if (isset($_SESSION['update_profile_success'])) { ?>
+                        <div class="container">
+                            <div class="alert alert-success">
+                                <h1 class="display-8 text-center"><?= $_SESSION['update_profile_success'] ?></h1>
+                            </div>
+                        </div>
+                        <?php unset($_SESSION['update_profile_success']); // Hapus session setelah digunakan ?>
+                    <?php } ?>
                 <h1>Data Pasien</h1>
                     <div class="row">
                         <div class="col-md-8">
@@ -60,7 +58,7 @@ if (isset($_SESSION['update_profile_success'])) { ?>
                                 <label for="no_telp" class="form-label">No Telepon</label>
                                 <div class="input-group">
                                     <span class="input-group-text">+62</span>
-                                    <input type="tel" name="no_telp" value="<?= htmlspecialchars(substr($data_pasien['no_telp'] ?? '', 3)) ?>" class="form-control" id="no_telp" placeholder="Nomor telepon tanpa 0 di depan">
+                                    <input type="tel" name="no_telp" value="<?= htmlspecialchars(substr($data_pasien['no_telp'] ?? '', 1)) ?>" class="form-control" id="no_telp" placeholder="Nomor telepon tanpa 0 di depan">
                                 </div>
                                 <small class="form-text text-muted">Masukkan nomor telepon tanpa 0 di depan (misal: 81234567890).</small>
                             </div>
@@ -71,7 +69,7 @@ if (isset($_SESSION['update_profile_success'])) { ?>
                         </div>
                     </div>
                     <button type="submit" name="btn_update_profile" value="update_profil" class="btn btn-primary">Edit</button>
-                    <a href="../siswa/dashboard.php" class="btn btn-danger">Kembali</a>
+                    <a href="../pasien/dashboard.php" class="btn btn-danger">Kembali</a>
                 </form>
 
                 </div>
