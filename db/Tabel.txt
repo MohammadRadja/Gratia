@@ -1,0 +1,39 @@
+Tabel User
+id_user CHAR(36) PRIMARY KEY,
+username VARCHAR(255) NOT NULL,
+password VARCHAR(255) NOT NULL
+level VARCHAR(20) NOT NULL
+
+Tabel Dokter 
+id_dokter CHAR(36) PRIMARY KEY,
+nama_dokter VARCHAR(100) NOT NULL,
+spesialisasi VARCHAR(100) NOT NULL
+
+Tabel Pasien
+id_pasien CHAR(36) PRIMARY KEY,
+id_user CHAR(36) NOT NULL,
+nama VARCHAR(100) NOT NULL,
+alamat TEXT NOT NULL,
+jenis_kelamin ENUM('Laki-laki', 'Perempuan') NOT NULL,
+no_telp VARCHAR(20) NOT NULL,
+
+Tabel Treatment
+id_treatment CHAR(36) PRIMARY KEY,
+nama_treatment VARCHAR(100) NOT NULL,
+biaya DECIMAL(10, 2) NOT NULL
+
+Tabel Appointment
+id_appointment CHAR(36) PRIMARY KEY,
+id_user CHAR(36) NOT NULL,
+id_dokter CHAR(36) NOT NULL,
+id_treatment CHAR(36) NOT NULL,
+catatan TEXT,
+
+Tabel Transaksi
+id_transaksi CHAR(36) PRIMARY KEY,
+id_user CHAR(36) NOT NULL,
+id_dokter CHAR(36) NOT NULL,
+id_treatment CHAR(36) Not Null,,
+tanggal_bayar DATE NULL,
+jumlah_bayar DECIMAL(10,2) NULL
+bukti_pembayaran VARCHAR(255) NULL,

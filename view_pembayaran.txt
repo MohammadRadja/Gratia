@@ -1,0 +1,21 @@
+CREATE VIEW view_pembayaran AS
+SELECT 
+    t.id_transaksi,
+    p.id_pasien,
+    p.nama AS nama_pasien,           -- Nama Pasien
+    d.id_dokter,
+    d.nama_dokter,                   -- Nama Dokter
+    tr.id_treatment,
+    tr.nama_treatment,               -- Nama Treatment
+    p.status_pembayaran,
+    t.tanggal_bayar,
+    t.jumlah_bayar,
+    t.bukti_pembayaran
+FROM 
+    transaksi t
+JOIN 
+    pasien p ON t.id_user = p.id_user
+JOIN 
+    dokter d ON t.id_dokter = d.id_dokter
+JOIN 
+    treatment tr ON t.id_treatment = tr.id_treatment;
