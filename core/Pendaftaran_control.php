@@ -65,7 +65,6 @@ if (isset($_POST['btn_registrasi'])) {
 
     // Buat ID unik untuk user dan pasien
     $id_user = uniqid();
-    $id_pasien = uniqid();
 
     // Buat koneksi ke database
     try {
@@ -88,7 +87,7 @@ if (isset($_POST['btn_registrasi'])) {
         if (!$stmt_pasien) {
             throw new Exception("Error preparing statement for pasien: " . mysqli_error($conn));
         }
-        mysqli_stmt_bind_param($stmt_pasien, 'sssss', $id_pasien, $nama, $alamat, $gender, $no_telp);
+        mysqli_stmt_bind_param($stmt_pasien, 'sssss', $id_user, $nama, $alamat, $gender, $no_telp);
         mysqli_stmt_execute($stmt_pasien);
 
         // Komit transaksi
