@@ -1,6 +1,10 @@
-<?php include('../db/auto_load.php'); ?>
-<?php include('./controller/pasien_dashboard_control.php') ?>
-<?php include('../template/pasien/dashboard_header.php'); ?>
+<?php 
+include('../db/auto_load.php'); 
+include('./controller/pasien_dashboard_control.php');
+include('../template/pasien/dashboard_header.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
+?>
 <!-- End of Topbar -->
 
 <!-- Begin Page Content -->
@@ -17,47 +21,27 @@
             </div>
         </div>
     </div>
-    <!-- Session Appointment  -->
+    <!-- Session Alert  -->
     <?php
-    if (isset($_SESSION['appointment_empty'])) { ?>
-        <div class="container">
-            <div class="alert alert-danger">
-                <h1 class="display-4"><?= $_SESSION['appointment_empty'] ?></h1>
-                <p class="lead"></p>
+    function displaySessionMessage($sessionKey, $alertType, $defaultMessage = '') {
+        if (isset($_SESSION[$sessionKey])) { ?>
+            <div class="container">
+                <div class="alert alert-<?= $alertType ?> text-center">
+                    <h1 class="display-8"><?= $_SESSION[$sessionKey] ?></h1>
+                    <p class="lead"><?= $defaultMessage ?></p>
+                </div>
             </div>
-        </div>
-        <?php unset($_SESSION['appointment_empty']); // Hapus session setelah digunakan ?>
-    <?php }  
-    if (isset($_SESSION['appointment_exists'])) { ?>
-        <div class="container">
-            <div class="alert alert-success">
-                <h1 class="display-4"><?= $_SESSION['appointment_exists'] ?></h1>
-                <p class="lead">Silahkan menghubungi kontak</p>
-            </div>
-        </div>
-        <?php unset($_SESSION['appointment_exists']); // Hapus session setelah digunakan ?>
-    <?php }
+            <?php unset($_SESSION[$sessionKey]); // Hapus session setelah digunakan
+        }
+    }
+
+    // Tampilkan pesan appointment
+    displaySessionMessage('appointment_empty', 'danger');
+    displaySessionMessage('appointment_exists', 'success');
+
+    // Tampilkan pesan pembayaran
+    displaySessionMessage('pembayaran_empty', 'danger');
+    displaySessionMessage('pembayaran_exists', 'success');
     ?>
-    <!-- Session Pembayaran  -->
-    <?php
-    if (isset($_SESSION['belum dibayar'])) { ?>
-        <div class="container">
-            <div class="alert alert-danger">
-                <h1 class="display-4"><?= $_SESSION['belum dibayar'] ?></h1>
-                <p class="lead"></p>
-            </div>
-        </div>
-        <?php unset($_SESSION['belum dibayar']); // Hapus session setelah digunakan ?>
-    <?php }  
-    if (isset($_SESSION['dibayar'])) { ?>
-        <div class="container">
-            <div class="alert alert-success">
-                <h1 class="display-4"><?= $_SESSION['dibayar'] ?></h1>
-                <p class="lead">Silahkan menghubungi kontak</p>
-            </div>
-        </div>
-        <?php unset($_SESSION['dibayar']); // Hapus session setelah digunakan ?>
-    <?php }
-?>
 
     <?php include('../template/pasien/dashboard_footer.php'); ?>

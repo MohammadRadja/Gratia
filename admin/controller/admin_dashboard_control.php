@@ -1,5 +1,16 @@
 <?php
-include ('../db/koneksi.php');
+$servername = "localhost";
+$username = "root"; 
+$password = ""; 
+$dbname = "gratia"; 
+
+// Buat koneksi
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Cek koneksi
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -9,7 +20,6 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['
     header('location:../login.php');
     exit;
 }
-
 
 // Query untuk mendapatkan data pasien
 $sql_pasien = "SELECT * FROM pasien";
@@ -31,7 +41,6 @@ if (count($data_pasien) === 0) {
     die("Data pasien tidak ditemukan.");
 }
 
-
 // Inisialisasi Array Pembayaran
 $data_pembayaran = [];
 
@@ -42,14 +51,13 @@ $result_pembayaran = mysqli_query($conn, $sql_pembayaran);
 // Periksa apakah query berhasil dijalankan
 if ($result_pembayaran) {
     while ($row = mysqli_fetch_assoc($result_pembayaran)) {
-        // Populate $data_pasien array
+        // Populate $data_pembayaran array
         $data_pembayaran[] = $row;
     }
 } else {
     // Handle query error
     die("Error: " . mysqli_error($conn));
 }
-
 
 // Loop untuk mengambil data pasien dan status pembayaran
 foreach ($data_pembayaran as &$pembayaran) {
@@ -68,25 +76,24 @@ foreach ($data_pembayaran as &$pembayaran) {
         $data_status_pembayaran = mysqli_fetch_array($result_status_pembayaran);
         $status_pembayaran = $data_status_pembayaran['status_pembayaran'];
     } else {
-        $status_pembayaran = "Belum Bayar";
+        $status_pembayaran = "belum bayar";
     }
 
-    // Tambahkan data pasien ke dalam array $data_pasien
+    // Tambahkan data pasien ke dalam array $data_pembayaran
     $pembayaran['status_pembayaran'] = $status_pembayaran;
 }
 
-
 // Logika Verif Pembayaran
-if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['action'])) {
-    $id_pasien = $_GET['id'];
+if (isset($_GET['id']) && isset($_GET['action'])) {
+    $id_transaksi = $_GET['id']; // Menggunakan id_transaksi dari GET
     $action = $_GET['action'];
 
     switch ($action) {
         case 'terima':
-            $sql_update = "UPDATE view_pembayaran SET status_pembayaran = 'diterima' WHERE id_pasien = ?";
+            $sql_update = "UPDATE view_pembayaran SET status_pembayaran = 'dibayar' WHERE id_transaksi = ?";
             break;
         case 'tolak':
-            $sql_update = "UPDATE view_pembayaran SET status_pembayaran = 'belum diterima' WHERE id_pasien = ?";
+            $sql_update = "UPDATE view_pembayaran SET status_pembayaran = 'ditolak' WHERE id_transaksi = ?";
             break;
         default:
             $_SESSION['verifikasi_error'] = "Aksi tidak valid.";
@@ -94,16 +101,21 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['action'])) {
             exit;
     }
 
-    // Execute update query with prepared statement
+    // Prepare statement
     $stmt = mysqli_prepare($conn, $sql_update);
-    mysqli_stmt_bind_param($stmt, 'i', $id_pasien);
+    if ($stmt === false) {
+        die("Error preparing statement: " . mysqli_error($conn));
+    }
+
+    // Tentukan tipe parameter yang sesuai, ubah 'd' menjadi 's' jika id_transaksi adalah string
+    mysqli_stmt_bind_param($stmt, 's', $id_transaksi); // Gantilah 'd' dengan 's' jika tipe ID adalah string
     $result_update = mysqli_stmt_execute($stmt);
 
     if ($result_update) {
         $action_text = ($action == 'terima') ? 'accepted' : 'rejected';
-        $_SESSION['verifikasi_success'] = "pasien successfully " . $action_text;
+        $_SESSION['verifikasi_success'] = "Pembayaran berhasil " . $action_text;
     } else {
-        $_SESSION['verifikasi_error'] = "Failed to process verification: " . mysqli_error($conn);
+        $_SESSION['verifikasi_error'] = "Gagal memproses verifikasi: " . mysqli_error($conn);
     }
 
     // Redirect back to payment verification page

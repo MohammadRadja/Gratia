@@ -43,29 +43,36 @@ ob_start(); // Mulai output buffering
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+           <!-- Nav Item - Dashboard -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Pasien -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'profil.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="profil.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Profile</span></a>
-            </li>
-            
-            <li class="nav-item active">
-                <a class="nav-link" href="appointment.php">
-                    <i class="fas fa-fw fa-user-alt"></i>
-                    <span>Appointment</span></a>
+                    <i class="fas fa-fw fa-user-md"></i> <!-- Mengganti icon ke user-md untuk konteks dokter atau pasien -->
+                    <span>Data Pasien</span>
+                </a>
             </li>
 
-            <li class="nav-item active">
+            <!-- Nav Item - Data Appointment -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'appointment.php' ? 'active' : ''; ?>">
+                <a class="nav-link" href="appointment.php">
+                    <i class="fas fa-fw fa-calendar-alt"></i> <!-- Mengganti icon ke calendar-alt untuk appointment -->
+                    <span>Data Appointment</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Data Pembayaran -->
+            <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'pembayaran.php' ? 'active' : ''; ?>">
                 <a class="nav-link" href="pembayaran.php">
-                    <i class="fas fa-fw fa-file-invoice"></i>
-                    <span>Pembayaran</span></a>
+                    <i class="fas fa-fw fa-money-bill-wave"></i> <!-- Mengganti icon ke money-bill-wave untuk pembayaran -->
+                    <span>Data Pembayaran</span>
+                </a>
             </li>
 
 
@@ -102,6 +109,7 @@ ob_start(); // Mulai output buffering
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600">Hallo, <b><?= $_SESSION['username']; ?></b></span>
                                 <img class="img-profile rounded-circle" src="../assets/img/logo.jpeg">
                             </a>
                             <!-- Dropdown - User Information -->
@@ -112,7 +120,5 @@ ob_start(); // Mulai output buffering
                                 </a>
                             </div>
                         </li>
-
                     </ul>
-
                 </nav>

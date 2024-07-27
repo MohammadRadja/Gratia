@@ -1,8 +1,9 @@
-<?php
-// Include necessary files and start session
-include('../db/auto_load.php');
+<?php 
+include('../db/auto_load.php'); 
+include('./controller/pasien_dashboard_control.php');
 include('../template/pasien/dashboard_header.php');
-include('../pasien/controller/pasien_dashboard_control.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
 ?>
 
 
@@ -58,8 +59,8 @@ include('../pasien/controller/pasien_dashboard_control.php');
                                 <label for="no_telp" class="form-label">No Telepon</label>
                                 <div class="input-group">
                                     <span class="input-group-text">+62</span>
-                                    <input type="tel" name="no_telp" value="<?= htmlspecialchars(substr($data_pasien['no_telp'] ?? '', 1)) ?>" class="form-control" id="no_telp" placeholder="Nomor telepon tanpa 0 di depan">
-                                </div>
+                                    <input type="tel" name="no_telp" value="<?= htmlspecialchars(substr($data_pasien['no_telp'] ?? '', 0)) ?>" class="form-control" id="no_telp" placeholder="Nomor telepon diawali dengan +62 (misal: +628123456789)">
+                                    </div>
                                 <small class="form-text text-muted">Masukkan nomor telepon tanpa 0 di depan (misal: 81234567890).</small>
                             </div>
                             <div class="mb-3">

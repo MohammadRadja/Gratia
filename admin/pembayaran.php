@@ -19,51 +19,39 @@ $current_file = basename($_SERVER['PHP_SELF']);
         <h1 class="h3 mb-0 text-gray-800">Dashboard Admin</h1>
     </div>
 
-    <!-- Tabel Data Pembayaran -->
+    <!-- Kartu Data Pembayaran -->
     <div class="container">
         <h1>Data Pembayaran</h1>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nama Pasien</th>
-                    <th>Nama Dokter</th>
-                    <th>Nama Treatment</th>
-                    <th>Biaya</th>
-                    <th>Status Pembayaran</th>
-                    <th>Tanggal Bayar</th>
-                    <th>Jumlah Bayar</th>
-                    <th>Bukti Pembayaran</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($data_pembayaran as $pembayaran) { ?>
-                    <tr>
-                        <td><?= htmlspecialchars($pembayaran['nama_pasien']); ?></td>
-                        <td><?= htmlspecialchars($pembayaran['nama_dokter']); ?></td>
-                        <td><?= htmlspecialchars($pembayaran['nama_treatment']); ?></td>
-                        <td>Rp<?= number_format($pembayaran['biaya'], 0, ',', '.'); ?></td>
-                        <td><?= htmlspecialchars($pembayaran['status_pembayaran']); ?></td>
-                        <td><?= htmlspecialchars($pembayaran['tanggal_bayar']); ?></td>
-                        <td>Rp<?= number_format($pembayaran['jumlah_bayar'], 0, ',', '.'); ?></td>
-                        <td>
-                            <?php if ($pembayaran['bukti_pembayaran']) : ?>
-                                <a href="<?= htmlspecialchars($pembayaran['bukti_pembayaran']); ?>" target="_blank">Lihat Bukti</a>
-                            <?php else : ?>
+        <div class="row">
+            <?php foreach ($data_pembayaran as $pembayaran): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card border-info">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= htmlspecialchars($pembayaran['nama_pasien']); ?></h5>
+                            <p class="card-text"><strong>Dokter:</strong> <?= htmlspecialchars($pembayaran['nama_dokter']); ?></p>
+                            <p class="card-text"><strong>Treatment:</strong> <?= htmlspecialchars($pembayaran['nama_treatment']); ?></p>
+                            <p class="card-text"><strong>Biaya:</strong> Rp<?= number_format($pembayaran['biaya'], 0, ',', '.'); ?></p>
+                            <p class="card-text"><strong>Status:</strong> <?= htmlspecialchars($pembayaran['status_pembayaran']); ?></p>
+                            <p class="card-text"><strong>Tanggal Bayar:</strong> <?= htmlspecialchars($pembayaran['tanggal_bayar']); ?></p>
+                            <p class="card-text"><strong>Jumlah Bayar:</strong> Rp<?= number_format($pembayaran['jumlah_bayar'], 0, ',', '.'); ?></p>
+                            
+                            <?php if (!empty($pembayaran['bukti_pembayaran'])): ?>
+                                <a href="../assets/pembayaran/<?= htmlspecialchars($pembayaran['bukti_pembayaran']); ?>" class="btn btn-primary" target="_blank">Lihat Bukti</a>
+                            <?php else: ?>
                                 <span class="badge badge-warning">Belum Ada</span>
                             <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($pembayaran['status_pembayaran'] == 'Belum Bayar'): ?>
-                                <a href="./controller/admin_dashboard_control.php?id=<?= htmlspecialchars($pembayaran['id_pembayaran']); ?>&action=terima" class="btn btn-success btn-sm">Terima</a>
-                                <a href="./controller/admin_dashboard_control.php?id=<?= htmlspecialchars($pembayaran['id_pembayaran']); ?>&action=tolak" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin ingin menolak pembayaran ini?')">Tolak</a>
+
+                            <?php if (trim($pembayaran['status_pembayaran']) === 'belum dibayar'): ?>
+                                <a href="./controller/admin_dashboard_control.php?id=<?= htmlspecialchars($pembayaran['id_transaksi']); ?>&action=terima" class="btn btn-success btn-sm">Terima</a>
+                                <a href="./controller/admin_dashboard_control.php?id=<?= htmlspecialchars($pembayaran['id_transaksi']); ?>&action=tolak" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin ingin menolak pembayaran ini?')">Tolak</a>
                             <?php else: ?>
+                                <span class="badge badge-success">Pembayaran Sudah Diproses</span>
                             <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 <!-- End of Page Content -->

@@ -60,11 +60,39 @@ if ($result_treatment->num_rows === 0) {
     $treatments = $result_treatment->fetch_all(MYSQLI_ASSOC);
 }
 
+$statusMessages = [
+    'dibayar' => "Pembayaran berhasil!",
+    'belum dibayar' => "Lengkapi data dan lakukan pembayaran.",
+    'pembayaran_exists' => "Pembayaran anda berhasil.",
+    'pembayaran_empty' => "Belum ada pembayaran yang dilakukan. Lengkapi data dan lakukan pembayaran segera.",
+    'appointment_exists' => "Anda memiliki appointment yang sudah terjadwal.",
+    'appointment_empty' => "Silakan buat appointment terlebih dahulu."
+];
+
 // Logika Status Pembayaran
-$sql_pembayaran = "SELECT * FROM view_pembayaran WHERE id_pasien = ?";
+$sql_pembayaran = "SELECT 
+    p.nama AS nama_pasien,
+    d.nama_dokter,
+    t.nama_treatment,
+    t.biaya,
+    p.status_pembayaran,
+    a.jadwal_appointment,
+    tr.tanggal_bayar,
+    COALESCE(tr.jumlah_bayar, 0) AS jumlah_bayar
+FROM 
+    Pasien p
+JOIN 
+    Appointment a ON p.id_pasien = a.id_pasien
+JOIN 
+    Dokter d ON a.id_dokter = d.id_dokter
+JOIN 
+    Treatment t ON a.id_treatment = t.id_treatment
+LEFT JOIN 
+    Transaksi tr ON p.id_pasien = tr.id_pasien AND d.id_dokter = tr.id_dokter AND t.id_treatment = tr.id_treatment
+WHERE p.id_pasien = ?";
 $result_bayar = executeQuery($conn, $sql_pembayaran, [$data_pasien['id_pasien']], "s");
 
-if ($result_bayar->num_rows > 0) {
+if ($result_bayar && $result_bayar->num_rows > 0) {
     // Ambil semua baris menjadi array
     $data_bayar = [];
     while ($row = $result_bayar->fetch_assoc()) {
@@ -80,36 +108,65 @@ if ($result_bayar->num_rows > 0) {
     $nama_treatment = htmlspecialchars($first_row['nama_treatment']);
     $biaya = htmlspecialchars($first_row['biaya']);
     $status_pembayaran = htmlspecialchars($first_row['status_pembayaran']);
-    
-    $_SESSION['appointment_exists'] = "Anda sudah memiliki anda sudah appointment dengan dokter.";
-    // Periksa status pembayaran
-    if ($status_pembayaran === 'dibayar') {
-        $_SESSION['dibayar'] = "Selamat, Pembayaran berhasil!!!.";
-    } else {
-        $_SESSION['belum dibayar'] = "Silakan lengkapi data diri anda dan lakukan pembayaran.";
-    }
+
+    $_SESSION['pembayaran_exists'] = $statusMessages['pembayaran_exists'];
+    $_SESSION['appointment_exists'] = $statusMessages['appointment_exists'];
 } else {
-    $_SESSION['appointment_empty'] = "Silakan lakukan appointment.";
+    $_SESSION['appointment_empty'] = $statusMessages['appointment_empty'];
+    $_SESSION['pembayaran_empty'] = $statusMessages['pembayaran_empty'];
 }
 
 
-// Proses Pembayaran
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_bayar'])) {
-    processPayment($conn);
+
+// Fungsi untuk memvalidasi data profil
+function validateProfileData($nama, $alamat, $jenis_kelamin, $no_telp) {
+    $error_messages = [];
+    
+    if (empty($nama)) {
+        $error_messages[] = "Nama tidak boleh kosong.";
+    }
+    if (empty($alamat)) {
+        $error_messages[] = "Alamat tidak boleh kosong.";
+    }
+    if (empty($jenis_kelamin) || !in_array($jenis_kelamin, ['Laki-laki', 'Perempuan'])) {
+        $error_messages[] = "Jenis kelamin tidak valid.";
+    }
+    if (empty($no_telp) || !preg_match('/^\+62[0-9]{9,14}$/', $no_telp)) {
+        $error_messages[] = "Nomor telepon tidak valid. Harus diawali dengan +62 dan memiliki total antara 10 hingga 15 digit.";
+        $no_telp = ''; // Set no_telp menjadi kosong jika tidak valid
+    } else {
+        // Jika validasi berhasil, kita akan menghilangkan angka pertama (0) dan menambahkan +62
+        $no_telp = '+62' . ltrim($no_telp, '0'); // Ini jika Anda ingin menyimpan nomor dalam format +62
+    }
+    
+    return [$error_messages, $no_telp];
 }
 
-// Proses Edit Data Pasien
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_update_profile'])) {
-    updateProfile($conn, $id_user);
-}
+// Fungsi untuk memperbarui profil pasien
+function updateProfile($conn, $id_user) {
+        $nama = $_POST['nama'] ?? '';
+        $alamat = $_POST['alamat'] ?? '';
+        $jenis_kelamin = $_POST['gender'] ?? '';
+        $no_telp = $_POST['no_telp'] ?? '';
 
-// Proses Penjadwalan Appointment
-if (isset($_POST['btn_appointment'])) {
-    scheduleAppointment($conn);
-}
+        // Validasi data
+        list($error_messages, $no_telp) = validateProfileData($nama, $alamat, $jenis_kelamin, $no_telp);
+        if (empty($error_messages)) {
+            // Eksekusi query update
+            $sql_update_profil = "UPDATE pasien SET nama = ?, alamat = ?, jenis_kelamin = ?, no_telp = ? WHERE id_pasien = ?";
+            $stmt = $conn->prepare($sql_update_profil);
+            $stmt->bind_param("ssssd", $nama, $alamat, $jenis_kelamin, $no_telp, $id_user);
 
-// Tutup koneksi
-mysqli_close($conn);
+            if ($stmt->execute()) {
+                $_SESSION['update_profile_success'] = "Profil berhasil diperbarui.";
+            } else {
+                $_SESSION['update_profile_error'] = "Error saat memperbarui profil: " . $stmt->error; 
+            }
+            $stmt->close();
+        } else {
+            $_SESSION['update_profile_error'] = implode(" ", $error_messages);
+    }
+}
 
 // Fungsi untuk mengunggah bukti pembayaran
 function uploadPaymentProof($file) {
@@ -139,65 +196,53 @@ function uploadPaymentProof($file) {
 
 // Fungsi untuk memproses pembayaran
 function processPayment($conn) {
-    $jumlah_bayar = $_POST['jumlah_bayar'];
-    $tanggal_bayar = date("Y-m-d H:i:s");
+        $jumlah_bayar = mysqli_real_escape_string($conn, $_POST['jumlah_bayar']);
+        $tanggal_bayar = mysqli_real_escape_string($conn, $_POST['tanggal_bayar']);
 
-    if (!empty($_FILES['bukti_pembayaran']['name'])) {
-        $uploadResult = uploadPaymentProof($_FILES['bukti_pembayaran']);
-        if ($uploadResult['error']) {
-            $_SESSION['payment_error'] = $uploadResult['message'];
-        } else {
-            $bukti_pembayaran = $uploadResult['file_name'];
-            $sql_pembayaran = "INSERT INTO transaksi (tanggal_bayar, jumlah_bayar, bukti_pembayaran) VALUES (?, ?, ?)";
-            $result_pembayaran = executeQuery($conn, $sql_pembayaran, [$tanggal_bayar, $jumlah_bayar, $bukti_pembayaran], "sss");
-            $_SESSION['payment_success'] = $result_pembayaran ? "Pembayaran berhasil dilakukan dan sedang menunggu verifikasi." : "Error saat melakukan pembayaran.";
+
+        if (empty($jumlah_bayar) || !is_numeric($jumlah_bayar) || $jumlah_bayar <= 0) {
+            $_SESSION['payment_error'] = "Jumlah bayar tidak valid.";
+            header('location: ../pasien/pembayaran.php');
+            exit;
         }
-    } else {
-        $_SESSION['payment_error'] = "Bukti pembayaran tidak diunggah.";
-    }
-    
-    header('location: ../pasien/pembayaran.php');
-    exit;
+
+        $id_pasien = $_SESSION['id_users'] ?? 'default_id';
+
+        if (!empty($_FILES['bukti_pembayaran']['name'])) {
+            $uploadResult = uploadPaymentProof($_FILES['bukti_pembayaran']);
+            if ($uploadResult['error']) {
+                $_SESSION['payment_error'] = $uploadResult['message'];
+            } else {
+                $bukti_pembayaran = $uploadResult['file_name'];
+                // Pastikan untuk menyesuaikan query sesuai dengan struktur tabel
+                $sql_pembayaran = "UPDATE transaksi SET tanggal_bayar = ?, jumlah_bayar = ?, bukti_pembayaran = ? WHERE id_pasien = ?";
+                $stmt = $conn->prepare($sql_pembayaran);
+                $stmt->bind_param("sdss", $tanggal_bayar, $jumlah_bayar, $bukti_pembayaran, $id_pasien);
+                
+                if ($stmt->execute()) {
+                    $_SESSION['payment_success'] = "Pembayaran berhasil dilakukan dan sedang menunggu verifikasi.";
+                } else {
+                    $_SESSION['payment_error'] = "Error saat melakukan pembayaran: " . $stmt->error;
+                }
+                $stmt->close();
+            }
+        } else {
+            $_SESSION['payment_error'] = "Bukti pembayaran tidak diunggah.";
+        }
+
+        header('location: ../pasien/pembayaran.php');
+        exit;
 }
 
-// Fungsi untuk memperbarui profil pasien
-function updateProfile($conn, $id_pasien) {
-    $nama = $_POST['nama'] ?? '';
-    $alamat = $_POST['alamat'] ?? '';
-    $jenis_kelamin = $_POST['gender'] ?? '';
-    $no_telp = $_POST['no_telp'] ?? '';
-    $error_messages = validateProfileData($nama, $alamat, $jenis_kelamin, $no_telp);
-    if (empty($error_messages)) {
-        $sql_update_profil = "UPDATE pasien SET nama = ?, alamat = ?, jenis_kelamin = ?, no_telp = ? WHERE id_pasien = ?";
-        $result_update = executeQuery($conn, $sql_update_profil, [$nama, $alamat, $jenis_kelamin, $no_telp, $id_pasien], "sssss");
-
-        if ($result_update) {
-            $_SESSION['update_profile_success'] = "Profil berhasil diperbarui.";
-        } else {
-            $_SESSION['update_profile_error'] = "Error saat memperbarui profil " . $conn->error; 
-        }
-    } else {
-        $_SESSION['update_profile_error'] = implode(" ", $error_messages);
-    }
-}
-
-// Fungsi untuk memvalidasi data profil
-function validateProfileData($nama, $alamat, $jenis_kelamin, $no_telp) {
+// Fungsi untuk memvalidasi data appointment
+function validateAppointmentData($treatment, $dokter) {
     $error_messages = [];
     
-    if (empty($nama)) {
-        $error_messages[] = "Nama tidak boleh kosong.";
+    if (empty($treatment)) {
+        $error_messages[] = "Treatment tidak boleh kosong.";
     }
-    if (empty($alamat)) {
-        $error_messages[] = "Alamat tidak boleh kosong.";
-    }
-    if (empty($jenis_kelamin) || !in_array($jenis_kelamin, ['Laki-laki', 'Perempuan'])) {
-        $error_messages[] = "Jenis kelamin tidak valid.";
-    }
-    if (empty($no_telp) || !preg_match('/^[0-9]{10,15}$/', $no_telp)) {
-        $error_messages[] = "Nomor telepon tidak valid. Harus antara 10 hingga 15 digit.";
-    } else {
-        $no_telp = '+62' . ltrim($no_telp, '0'); // Menghilangkan angka pertama (0) dan menambahkan +62
+    if (empty($dokter)) {
+        $error_messages[] = "Dokter tidak boleh kosong.";
     }
     
     return $error_messages;
@@ -230,7 +275,7 @@ function scheduleAppointment($conn) {
          
          // Insert ke tabel transaksi
          $sql_transaksi = "INSERT INTO transaksi (id_transaksi, id_pasien, id_dokter, id_treatment, tanggal_bayar, jumlah_bayar, bukti_pembayaran) VALUES (?, ?, ?, ?, ?, ?, ?)";
-         $stmt_transaksi = executeQuery($conn, $sql_transaksi, [$id_transaksi, $id_pasien, $dokter, $treatment, $tanggal_bayar, $jumlah_bayar, $bukti_pembayaran], "sssssss");
+         $stmt_transaksi = executeQuery($conn, $sql_transaksi, [$id_transaksi, $id_pasien, $dokter, $treatment, NULL, NULL, NULL], "sssssss");
          
          mysqli_commit($conn);
         $_SESSION['appointment_success'] = "Appointment berhasil dijadwalkan.";
@@ -243,17 +288,22 @@ function scheduleAppointment($conn) {
     exit;
 }
 
-// Fungsi untuk memvalidasi data appointment
-function validateAppointmentData($treatment, $dokter) {
-    $error_messages = [];
-    
-    if (empty($treatment)) {
-        $error_messages[] = "Treatment tidak boleh kosong.";
-    }
-    if (empty($dokter)) {
-        $error_messages[] = "Dokter tidak boleh kosong.";
-    }
-    
-    return $error_messages;
+
+// Proses Pembayaran
+if (isset($_POST['btn_bayar'])) {
+    processPayment($conn);
 }
+
+// Proses Edit Data Pasien
+if (isset($_POST['btn_update_profile'])) {
+    updateProfile($conn, $id_user);
+}
+
+// Proses Penjadwalan Appointment
+if (isset($_POST['btn_appointment'])) {
+    scheduleAppointment($conn);
+}
+
+// Tutup koneksi
+mysqli_close($conn);
 ?>

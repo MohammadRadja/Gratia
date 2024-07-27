@@ -3,6 +3,9 @@
 include('../db/auto_load.php');
 include('../template/pasien/dashboard_header.php');
 include('../pasien/controller/pasien_dashboard_control.php');
+
+$current_file = basename($_SERVER['PHP_SELF']);
+
 ?>
 <!-- Begin Page Content -->
 <div class="container-fluid">
